@@ -141,19 +141,19 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 vim.api.nvim_create_autocmd("FileType", {
-    pattern = "blade",
-    callback = function()
-        -- Load HTML rules first
-        vim.cmd("runtime! ftplugin/html.vim")
-        
-        -- Append Blade rules to existing HTML match_words
-        local blade_matches = "@if:@else:@endif,@foreach:@endforeach,@for:@endfor,@while:@endwhile"
-        if vim.b.match_words then
-            vim.b.match_words = vim.b.match_words .. "," .. blade_matches
-        else
-            vim.b.match_words = blade_matches
-        end
-    end,
+	pattern = "blade",
+	callback = function()
+		-- Load HTML rules first
+		vim.cmd("runtime! ftplugin/html.vim")
+
+		-- Append Blade rules to existing HTML match_words
+		local blade_matches = "@if:@else:@endif,@foreach:@endforeach,@for:@endfor,@while:@endwhile"
+		if vim.b.match_words then
+			vim.b.match_words = vim.b.match_words .. "," .. blade_matches
+		else
+			vim.b.match_words = blade_matches
+		end
+	end,
 })
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -452,8 +452,8 @@ require("lazy").setup({
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
 						local highlight_augroup =
-						    vim.api.nvim_create_augroup("kickstart-lsp-highlight",
-							    { clear = false })
+								vim.api.nvim_create_augroup("kickstart-lsp-highlight",
+									{ clear = false })
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 							buffer = event.buf,
 							group = highlight_augroup,
@@ -754,6 +754,40 @@ require("lazy").setup({
 		end
 	},
 	{
+		'nvim-treesitter/nvim-treesitter-context',
+		opts = {
+			enable = true,
+			max_lines = 1,
+			line_numbers = true,
+			trim_scope = 'outer',
+			patterns = {
+				default = {
+					'class',
+					'function',
+					'method',
+				},
+				html = {
+					'element',
+				},
+				markdown = {
+					'section'
+				},
+				php = {
+					'function_definition',
+					'method_declaration'
+				},
+				javascript = {
+					'function_declaration',
+					'method_definition',
+					'arrow_function',
+					'function'
+				}
+			},
+			zindex = 20,
+			mode = 'cursor',
+		},
+	},
+	{
 		"windwp/nvim-ts-autotag",
 		config = function()
 			require("nvim-ts-autotag").setup({
@@ -861,12 +895,12 @@ require("lazy").setup({
 			"nvim-lua/plenary.nvim",
 			"MunifTanjim/nui.nvim",
 			--- The below dependencies are optional,
-			"echasnovski/mini.pick", -- for file_selector provider mini.pick
+			"echasnovski/mini.pick",      -- for file_selector provider mini.pick
 			"nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-			"hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
-			"ibhagwan/fzf-lua", -- for file_selector provider fzf
+			"hrsh7th/nvim-cmp",           -- autocompletion for avante commands and mentions
+			"ibhagwan/fzf-lua",           -- for file_selector provider fzf
 			"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-			"github/copilot.vim", -- for providers='copilot'
+			"github/copilot.vim",         -- for providers='copilot'
 			--			{
 			--				-- support for image pasting
 			--				"HakonHarnes/img-clip.nvim",
@@ -1425,14 +1459,14 @@ require("lazy").setup({
 					Snacks.toggle.diagnostics():map("<leader>ud")
 					Snacks.toggle.line_number():map("<leader>ul")
 					Snacks.toggle
-					    .option("conceallevel",
-						    { off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
-					    :map("<leader>uc")
+							.option("conceallevel",
+								{ off = 0, on = vim.o.conceallevel > 0 and vim.o.conceallevel or 2 })
+							:map("<leader>uc")
 					Snacks.toggle.treesitter():map("<leader>uT")
 					Snacks.toggle
-					    .option("background",
-						    { off = "light", on = "dark", name = "Dark Background" })
-					    :map("<leader>ub")
+							.option("background",
+								{ off = "light", on = "dark", name = "Dark Background" })
+							:map("<leader>ub")
 					Snacks.toggle.inlay_hints():map("<leader>uh")
 					Snacks.toggle.indent():map("<leader>ug")
 					Snacks.toggle.dim():map("<leader>uD")
