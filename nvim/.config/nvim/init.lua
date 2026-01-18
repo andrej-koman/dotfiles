@@ -489,32 +489,33 @@ require("lazy").setup({
 			capabilities = vim.tbl_deep_extend("force", capabilities,
 				require("cmp_nvim_lsp").default_capabilities())
 
-			local servers = {
-				cssls = {},
-				lua_ls = {
-					settings = {
-						Lua = {
-							completion = {
-								callSnippet = "Replace",
-							},
-							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-							-- diagnostics = { disable = { 'missing-fields' } },
+		local servers = {
+			cssls = {},
+			lua_ls = {
+				settings = {
+					Lua = {
+						completion = {
+							callSnippet = "Replace",
 						},
+						-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+						-- diagnostics = { disable = { 'missing-fields' } },
 					},
 				},
-				html = {
-					filetypes = { "html", "blade" },
-					init_options = {
-						configurationSection = { "html", "css", "javascript" },
-						embeddedLanguages = {
-							css = true,
-							javascript = true,
-						},
-						provideFormatter = true,
-					}
-				},
-				phpactor = {}
-			}
+			},
+			ts_ls = {},
+			html = {
+				filetypes = { "html", "blade" },
+				init_options = {
+					configurationSection = { "html", "css", "javascript" },
+					embeddedLanguages = {
+						css = true,
+						javascript = true,
+					},
+					provideFormatter = true,
+				}
+			},
+			phpactor = {}
+		}
 
 			require("mason").setup()
 
@@ -698,20 +699,23 @@ require("lazy").setup({
 		branch = "master",
 		build = ":TSUpdate",
 		opts = {
-			ensure_installed = {
-				"bash",
-				"c",
-				"diff",
-				"html",
-				"lua",
-				"luadoc",
-				"markdown",
-				"markdown_inline",
-				"query",
-				"vim",
-				"vimdoc",
-				"vue",
-			},
+		ensure_installed = {
+			"bash",
+			"c",
+			"diff",
+			"html",
+			"lua",
+			"luadoc",
+			"markdown",
+			"markdown_inline",
+			"query",
+			"vim",
+			"vimdoc",
+			"vue",
+			"typescript",
+			"tsx",
+			"javascript",
+		},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
 			highlight = {
