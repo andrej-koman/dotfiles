@@ -314,6 +314,9 @@ require("lazy").setup({
 						"%.mp4",
 						"%.zip",
 					},
+					live_grep = {
+						debounce = 200
+					},
 				},
 				extensions = {
 					["ui-select"] = {
@@ -448,6 +451,12 @@ require("lazy").setup({
 					--  For example, in C this would take you to the header.
 					map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
+					-- Show hover information (function signature, documentation, etc.)
+					map("K", vim.lsp.buf.hover, "Hover Documentation")
+
+					-- Show diagnostic message for error/warning under cursor
+					map("<leader>cd", vim.diagnostic.open_float, "[C]ode [D]iagnostic")
+
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
@@ -489,33 +498,40 @@ require("lazy").setup({
 			capabilities = vim.tbl_deep_extend("force", capabilities,
 				require("cmp_nvim_lsp").default_capabilities())
 
-		local servers = {
-			cssls = {},
-			lua_ls = {
-				settings = {
-					Lua = {
-						completion = {
-							callSnippet = "Replace",
+			local servers = {
+				cssls = {},
+				lua_ls = {
+					settings = {
+						Lua = {
+							completion = {
+								callSnippet = "Replace",
+							},
+							-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
+							-- diagnostics = { disable = { 'missing-fields' } },
 						},
-						-- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-						-- diagnostics = { disable = { 'missing-fields' } },
 					},
 				},
-			},
-			ts_ls = {},
-			html = {
-				filetypes = { "html", "blade" },
-				init_options = {
-					configurationSection = { "html", "css", "javascript" },
-					embeddedLanguages = {
-						css = true,
-						javascript = true,
+				ts_ls = {},
+				html = {
+					filetypes = { "html", "blade" },
+					init_options = {
+						configurationSection = { "html", "css", "javascript" },
+						embeddedLanguages = {
+							css = true,
+							javascript = true,
+						},
+						provideFormatter = true,
+					}
+				},
+				phpactor = {
+					init_options = {
+						["worse.inlayHints.enable"] = true,
+						["worse.diagnosticsOnUpdate"] = true,
+						["worse.diagnosticsOnOpen"] = true,
+						["worse.diagnosticsOnSave"] = true,
 					},
-					provideFormatter = true,
 				}
-			},
-			phpactor = {}
-		}
+			}
 
 			require("mason").setup()
 
@@ -699,23 +715,23 @@ require("lazy").setup({
 		branch = "master",
 		build = ":TSUpdate",
 		opts = {
-		ensure_installed = {
-			"bash",
-			"c",
-			"diff",
-			"html",
-			"lua",
-			"luadoc",
-			"markdown",
-			"markdown_inline",
-			"query",
-			"vim",
-			"vimdoc",
-			"vue",
-			"typescript",
-			"tsx",
-			"javascript",
-		},
+			ensure_installed = {
+				"bash",
+				"c",
+				"diff",
+				"html",
+				"lua",
+				"luadoc",
+				"markdown",
+				"markdown_inline",
+				"query",
+				"vim",
+				"vimdoc",
+				"vue",
+				"typescript",
+				"tsx",
+				"javascript",
+			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
 			highlight = {
