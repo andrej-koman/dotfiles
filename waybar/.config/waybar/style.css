@@ -294,3 +294,15 @@ window#waybar.hidden {
     margin: 0 5px;
     transition: all 0.3s ease;
 }
+
+tooltip {
+  background: @background;
+  border: 1.2px solid @color6;
+  border-radius: 10px;
+}
+
+tooltip label {
+  font-family: "JetBrainsMono Nerd Font";
+  color: @foreground;
+  padding: 8px;
+}
