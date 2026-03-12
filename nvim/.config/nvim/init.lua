@@ -335,7 +335,7 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>fw", builtin.grep_string, { desc = "[F]ind current [W]ord" })
 		vim.keymap.set("n", "<leader>fg", function()
 			builtin.live_grep({
-				debounce = 500
+				debounce = 1000
 			})
 		end, { desc = "[F]ind by [G]rep" })
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[F]ind [D]iagnostics" })
