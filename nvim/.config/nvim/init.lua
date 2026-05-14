@@ -303,7 +303,30 @@ require("lazy").setup({
 			require("telescope").setup({
 				defaults = {
 					file_ignore_patterns = {
-						".git/",
+						-- VIAR Specific
+						"resources/views/adminLTE/",
+
+						-- Folders
+						"node_modules/",
+						"vendor/",
+						"storage/",
+						"public/storage",
+						"bin/",
+						"obj/",
+						"%.git/",
+
+						-- File extensions (to prevent binary/asset noise)
+						"%.jpg", "%.jpeg", "%.png", "%.pdf", "%.svg", "%.ico",
+						"%.lock",        -- composer.lock / package-lock.json
+						"%.sqlite",      -- Database files
+						"%.woff", "%.woff2", "%.ttf", "%.eot", -- Fonts
+
+						-- Minified files
+						"%.min%.js",
+						"%.min%.css",
+						"%.map", -- Also exclude source maps, which are huge JSON files
+
+						-- Other
 						".cache",
 						"%.o",
 						"%.a",
