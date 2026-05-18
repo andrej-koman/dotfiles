@@ -317,8 +317,8 @@ require("lazy").setup({
 
 						-- File extensions (to prevent binary/asset noise)
 						"%.jpg", "%.jpeg", "%.png", "%.pdf", "%.svg", "%.ico",
-						"%.lock",        -- composer.lock / package-lock.json
-						"%.sqlite",      -- Database files
+						"%.lock",                        -- composer.lock / package-lock.json
+						"%.sqlite",                      -- Database files
 						"%.woff", "%.woff2", "%.ttf", "%.eot", -- Fonts
 
 						-- Minified files
@@ -356,11 +356,11 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[F]ind [F]iles" })
 			vim.keymap.set("n", "<leader>fs", builtin.builtin, { desc = "[F]ind [S]elect Telescope" })
 			vim.keymap.set("n", "<leader>fw", builtin.grep_string, { desc = "[F]ind current [W]ord" })
-		vim.keymap.set("n", "<leader>fg", function()
-			builtin.live_grep({
-				debounce = 1000
-			})
-		end, { desc = "[F]ind by [G]rep" })
+			vim.keymap.set("n", "<leader>fg", function()
+				builtin.live_grep({
+					debounce = 1000
+				})
+			end, { desc = "[F]ind by [G]rep" })
 			vim.keymap.set("n", "<leader>fd", builtin.diagnostics, { desc = "[F]ind [D]iagnostics" })
 			vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "[F]ind [R]esume" })
 			vim.keymap.set("n", "<leader>f.", builtin.oldfiles,
@@ -387,6 +387,33 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>fn", function()
 				builtin.find_files({ cwd = vim.fn.stdpath("config") })
 			end, { desc = "[F]ind [N]eovim files" })
+
+			-- Live grep in a selected folder
+			vim.keymap.set("n", "<leader>fF", function()
+				builtin.find_files({
+					prompt_title = "Select Folder to Grep",
+					find_command = { "fd", "--type", "d", "--hidden", "--exclude", ".git" },
+
+					attach_mappings = function(prompt_bufnr, map)
+						local actions = require("telescope.actions")
+						local action_state = require("telescope.actions.state")
+
+						actions.select_default:replace(function()
+							local selection = action_state.get_selected_entry()
+							actions.close(prompt_bufnr)
+
+							if selection then
+								builtin.live_grep({
+									prompt_title = "Live Grep in: " .. selection.value,
+									search_dirs = { selection.value },
+									debounce = 1000, -- Matches your default live_grep debounce
+								})
+							end
+						end)
+						return true
+					end,
+				})
+			end, { desc = "[F]ind by Grep in Select [F]older" })
 		end,
 	},
 
@@ -920,57 +947,6 @@ require("lazy").setup({
 		config = function()
 			require("autoclose").setup()
 		end,
-	},
-	{
-		"yetone/avante.nvim",
-		event = "VeryLazy",
-		version = false, -- Never set this value to "*"! Never!
-		opts = {
-			-- add any opts here
-			-- for example
-			provider = "copilot",
-		},
-		-- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-		build = "make BUILD_FROM_SOURCE=true",
-		-- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false", -- for windows
-		dependencies = {
-			"nvim-treesitter/nvim-treesitter",
-			"stevearc/dressing.nvim",
-			"nvim-lua/plenary.nvim",
-			"MunifTanjim/nui.nvim",
-			--- The below dependencies are optional,
-			"echasnovski/mini.pick",      -- for file_selector provider mini.pick
-			"nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-			"hrsh7th/nvim-cmp",           -- autocompletion for avante commands and mentions
-			"ibhagwan/fzf-lua",           -- for file_selector provider fzf
-			"nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-			"github/copilot.vim",         -- for providers='copilot'
-			--			{
-			--				-- support for image pasting
-			--				"HakonHarnes/img-clip.nvim",
-			--				event = "VeryLazy",
-			--				opts = {
-			--					-- recommended settings
-			--					default = {
-			--						embed_image_as_base64 = false,
-			--						prompt_for_file_name = false,
-			--						drag_and_drop = {
-			--							insert_mode = true,
-			--						},
-			--						-- required for Windows users
-			--						use_absolute_path = true,
-			--					},
-			--				},
-			--			},
-			{
-				-- Make sure to set this up properly if you have lazy=true
-				"MeanderingProgrammer/render-markdown.nvim",
-				opts = {
-					file_types = { "markdown", "Avante" },
-				},
-				ft = { "markdown", "Avante" },
-			},
-		},
 	},
 	{
 		"folke/snacks.nvim",
