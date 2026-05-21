@@ -261,7 +261,7 @@ require("lazy").setup({
 				{ "<leader>w", group = "[W]orkspace" },
 				{ "<leader>t", group = "[T]oggle" },
 				{ "<leader>x", group = "[X]diagnostics" },
-				{ "<leader>h", group = "Git [H]unk",    mode = { "n", "v" } },
+				{ "<leader>h", group = "[H]arpoon" },
 
 				-- Hide BufferLineGoToBuffer definitions
 				{ "<leader>1", hidden = true },
@@ -508,6 +508,21 @@ require("lazy").setup({
 					-- Show diagnostic message for error/warning under cursor
 					map("<leader>cd", vim.diagnostic.open_float, "[C]ode [D]iagnostic")
 
+					if vim.bo[event.buf].filetype == "go" then
+						map("<leader>gi", function()
+							vim.lsp.buf.code_action({
+								context = {
+									only = { "source.organizeImports" },
+									diagnostics = {},
+								},
+								apply = true,
+							})
+						end, "[G]o Organize [I]mports")
+						map("<leader>gt", "<cmd>!go test ./...<cr>", "[G]o [T]est all")
+						map("<leader>gT", "<cmd>!go test %<cr>", "[G]o Test current file")
+						map("<leader>gr", "<cmd>!go run .<cr>", "[G]o [R]un")
+					end
+
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
 					if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
@@ -551,6 +566,22 @@ require("lazy").setup({
 
 			local servers = {
 				cssls = {},
+				gopls = {
+					settings = {
+						gopls = {
+							gofumpt = true,
+							usePlaceholders = true,
+							completeUnimported = true,
+							staticcheck = true,
+							analyses = {
+								unusedparams = true,
+								unusedwrite = true,
+								shadow = true,
+								nilness = true,
+							},
+						},
+					},
+				},
 				lua_ls = {
 					settings = {
 						Lua = {
@@ -590,6 +621,10 @@ require("lazy").setup({
 			vim.list_extend(ensure_installed, {
 				"stylelint", -- CSS formatting
 				"prettier", -- JS/TS/Vue formatting
+				"goimports",
+				"gofumpt",
+				"golangci-lint",
+				"delve",
 			})
 			require("mason-tool-installer").setup({ ensure_installed = ensure_installed })
 
@@ -626,13 +661,19 @@ require("lazy").setup({
 		},
 		opts = {
 			notify_on_error = false,
-			format_on_save = false,
+			format_on_save = function(bufnr)
+				if vim.bo[bufnr].filetype == "go" then
+					return { timeout_ms = 1000, lsp_format = "fallback" }
+				end
+				return nil
+			end,
 			formatters_by_ft = {
 				lua = { "stylua" },
 				html = { "prettire" },
 				css = { "stylelint" },
 				javascript = { "prettier" },
 				typescript = { "prettier" },
+				go = { "goimports", "gofumpt" },
 			},
 		},
 	},
@@ -768,6 +809,10 @@ require("lazy").setup({
 				"bash",
 				"c",
 				"diff",
+				"go",
+				"gomod",
+				"gowork",
+				"gosum",
 				"html",
 				"lua",
 				"luadoc",
@@ -1538,6 +1583,49 @@ require("lazy").setup({
 			})
 		end,
 	},
+	{
+		"ThePrimeagen/harpoon",
+		branch = "harpoon2",
+		dependencies = { "nvim-lua/plenary.nvim" },
+		config = function()
+			local harpoon = require("harpoon")
+			harpoon:setup({
+				global_settings = {
+					save_on_toggle = false,
+					save_on_change = true,
+					enter_on_sendcmd = false,
+					tmux_autoclose_windows = false,
+					exclude_filetypes = { "harpoon" },
+					mark_branch = true
+				}
+			})
+
+			local conf = require("telescope.config").values
+			local function toggle_telescope(harpoon_files)
+				local file_paths = {}
+				for _, item in ipairs(harpoon_files.items) do
+					table.insert(file_paths, item.value)
+				end
+
+				require("telescope.pickers").new({}, {
+					prompt_title = "Harpoon",
+					finder = require("telescope.finders").new_table({
+						results = file_paths,
+					}),
+					previewer = conf.file_previewer({}),
+					sorter = conf.generic_sorter({}),
+				}):find()
+			end
+
+			vim.keymap.set("n", "<leader>ha", function()
+				harpoon:list():add()
+			end, { desc = "Harpoon: Add file to list" })
+
+			vim.keymap.set("n", "<leader>he", function()
+				toggle_telescope(harpoon:list())
+			end, { desc = "Harpoon: Open list" })
+		end,
+	}
 }, {
 	ui = {
 		icons = vim.g.have_nerd_font and {} or {
